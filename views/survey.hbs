@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/survey.css">
+    <title>Опрос</title>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <header class="header header-survay">
+                <div class="link-back"><a href="/home" class="link-back-text">Назад</a></div>
+                <h1 class="survey-title">{{titleSurvay}}</h1>
+            </header>
+            <main class="main">
+                <form class="survey-form" action="/completed-survey" method="post">
+
+                    <input type="text" name="titleSurvay" id="titleSurvay" class="display-none" value="{{this.titleSurvay}}">
+                    
+                    {{#each questionsList}}
+                        <div class="survey-form__item">
+                            <h2 class="survey-form__item__title">Вопрос: {{this.title}}</h2>
+                            <textarea class="survey-form__item__input-t" name="{{this.title}}" id="{{this.title}}" type="text" resize="none" placeholder="Напишите ваш ответ"></textarea>
+                        </div>
+                    {{/each}}
+
+                    <button class="survey-form__btn" type="submit" id="js-btn-submit">Завершить опрос</button>
+                </form>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

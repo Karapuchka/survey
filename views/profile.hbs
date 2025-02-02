@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <title>Профиль</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="header"><img class="header__img" src="/img/feedback.jpg"></header>
+        <main class="main">
+             <div class="container">
+
+                <div class="link"><a href="/home" class="link__text">Опросы</a></div>
+                
+                <h3 class="profile-title">Логин пользователя: {{userLogin}}</h3>
+
+                <h3 class="profile-title">Оценка пройденых опросов пользователя:</h3>
+
+                <span class="display-none" id="res-100">{{100}}</span>
+                <span class="display-none" id="res-80">{{80}}</span>
+                <span class="display-none" id="res-50">{{50}}</span>
+                <span class="display-none" id="res-30">{{30}}</span>
+                <span class="display-none" id="res-0">{{0}}</span>
+
+                <div class="info">
+                    <canvas id="chart1"></canvas>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/profile.js"></script>
+</body>
+</html>

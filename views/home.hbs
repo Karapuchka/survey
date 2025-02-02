@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <title>Опросы</title>
+</head>
+<body>
+    <div class="wrapper">
+        <header class="header"><img class="header__img" src="/img/survey.jpg"></header>
+        <main class="main">
+            <div class="container">
+                <div class="link"><a href="/profile" class="link__text">Профиль</a></div>
+                <ol class="list-survey">
+                    {{#each list}}
+                        <li class="list-survey__item">
+                            <form class="list-survey__item__form" action="/open-survey" method="post">
+                                <input type="text" class="display-none" name="status" id="status" value="{{this.statusText}}">
+                                <input type="text" class="display-none" name="id" id="id" value="{{this.id}}">
+                                <input type="text" class="display-none" name="title" id="title" value="{{this.title}}">
+                                <h2 class="list-survey__item__title">{{this.title}}</h2>
+                                <span class="list-survey__item__status list-survey__item__status--{{this.status}}">{{this.statusText}}</span>
+                                <button type="submit" class="list-survey__item__btn">Пройти</button>
+                            </form>
+                        </li>
+                    {{/each}}
+                </ol>
+            </div>
+        </main>
+    </div>
+
+     <script src="/js/home.js"></script>
+</body>
+</html>

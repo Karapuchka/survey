@@ -13,7 +13,7 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     host: 3000,
     user: 'root',
-    database: 'taskManager',
+    database: 'survay',
 });
 
 //Создание парсера
@@ -26,24 +26,8 @@ const JSONParser = express.json();
 app.use(express.static(path.join(fs.realpathSync('.') + '/public')));
 app.set('view engine', 'hbs');
 
-//Настройка работы с файлами пользователя
-const storageFile = multer.diskStorage({
-    destination: (req, file, cd)=>{
-        cd(null, 'public/img/profile');
-    },
-    filename: (req, file, cd)=>{
-        cd(null, file.originalname);
-    },
-});
-
-const upload = multer({storage: storageFile});
-
 app.get('/', (_, res)=>{
     return res.render('index.hbs');
-});
-
-app.get('/singOut', (_, res)=>{
-    return res.render('singOut.hbs');
 });
 
 app.post('/singIn', urlcodedParsers, (req, res)=>{
@@ -75,105 +59,194 @@ app.post('/singIn', urlcodedParsers, (req, res)=>{
     })
 });
 
-app.post('/addUser', urlcodedParsers, (req, res)=>{
-    if(!req.body) return res.sendStatus(400);
-
-    pool.query('SELECT * FROM users', (err, data)=>{
-        if(err) return console.log(err);
-
-        for (let i = 0; i < data.length; i++) {
-            if(data[i].login == req.body.login){
-                return res.render('singOut.hbs', {
-                    title: 'Логин занят!',
-                });
-            }            
-        }
-
-        pool.query('INSERT INTO users (login, password, name) VALUES(?,?,?)', [req.body.login, req.body.password, req.body.name], (err)=>{
-            if(err) return console.log(err);
-        });
-    
-        res.redirect('/');
-    })
-});
 
 app.get('/home', (_, res)=>{
 
-    pool.query('SELECT * FROM target', (err, data)=>{
+    pool.query('SELECT * FROM surveys', (err, data)=>{
         if(err) return console.log(err);
 
-        let tasks = [];
-        
+        let arrSurvey = [];
+
+        for (let j = 0; j < data.length; j++) {
+            let arrIdUsers = data[j].idUsersCompleted.split(',');
+            let valid = false;
+
+            for (let i = 0; i < arrIdUsers.length; i++) {
+                if(+arrIdUsers[i] == user.id){
+                    arrSurvey.push({
+                        'id': data[j].id,
+                        'title': data[j].title,
+                        'status': 'green',
+                        'statusText': 'Пройден',
+                    });
+
+                    valid = true;
+
+                    break;
+                }            
+            }  
+
+            if(!valid){
+                arrSurvey.push({
+                    'id': data[j].id,
+                    'title': data[j].title,
+                    'status': 'red',
+                    'statusText': 'Не пройден',
+                });
+            }
+        }
+
+        res.render('home.hbs',{
+            'list': arrSurvey,
+        });
+    });
+});
+
+app.post('/open-survey', urlcodedParsers, (req, res)=>{
+    if(!req.body) return res.statusCode(400);
+
+    pool.query('SELECT * FROM questions', (err, data)=>{
+        if(err) return console.log(err);
+
+        let questionsList = [];
+
         for (let i = 0; i < data.length; i++) {
 
-            if(user.id == data[i].idUser){
-                tasks.push({
-                    'id': data[i].id,
+            if(data[i].idSurvey == req.body.id){
+             
+                let answersList = data[i].answer.split(',');
+                
+                questionsList.push({
                     'title': data[i].title,
-                    'time': data[i].time,
+                    'answers': answersList,
+                    'id': data[i].id,
+                });
+            };      
+        };    
+
+        res.render('survey.hbs', {
+            'titleSurvay': req.body.title,
+            'questionsList': questionsList,
+        });
+    });
+});
+
+app.post('/completed-survey', urlcodedParsers, (req, res)=>{
+    if(!req.body) return res.statusCode(400);
+
+    pool.query('SELECT * FROM questions', (err, data)=>{
+        if(err) return console.log(err);
+
+        let countTrueAnswer = 0;
+        let countAnswer = 0;
+
+        for (const key in req.body) {
+            for (let i = 0; i < data.length; i++) {
+                if(data[i].title == key){
+                    countAnswer++;
+
+                    if(data[i].curAnswer == req.body[key]){
+                        countTrueAnswer++;
+                    };
+                };
+            };
+        };
+
+        let result = 100 * countTrueAnswer / countAnswer;
+
+        let upRes = 0;
+
+        if(result == 100) upRes = 100;
+        else if (result <= 80) upRes = 80;
+        else if (result <= 50) upRes = 50;
+        else if (result <= 30) upRes = 30;
+        else if (result == 0) upRes = 0;
+
+        pool.query(`UPDATE surveys SET ?=? WHERE title=?`, [String(upRes), String(result), req.body.titleSurvay], (errSurveys)=> {if(errSurveys) return console.log(errSurveys)});
+                  
+        pool.query('SELECT * FROM surveys', (err, data)=>{
+        if(err) return console.log(err);
+
+        let arrSurvey = [];
+
+        for (let j = 0; j < data.length; j++) {
+            let arrIdUsers = data[j].idUsersCompleted.split(',');
+            let valid = false;
+
+            for (let i = 0; i < arrIdUsers.length; i++) {
+                if(+arrIdUsers[i] == user.id){
+                    arrSurvey.push({
+                        'id': data[j].id,
+                        'title': data[j].title,
+                        'status': 'green',
+                        'statusText': 'Пройден',
+                    });
+
+                    valid = true;
+
+                    break;
+                };           
+            };  
+
+            if(!valid){
+                arrSurvey.push({
+                    'id': data[j].id,
+                    'title': data[j].title,
+                    'status': 'red',
+                    'statusText': 'Не пройден',
                 });
             };
         };
 
-        res.render('home.hbs', {
-            'tasks': tasks,
-        })
+        res.render('home.hbs',{
+            'list': arrSurvey,
+        });
+    });
+
+        res.render('home.hbs');
     });
 });
 
-app.post('/adding-task', JSONParser, (req, res)=>{
-    if(!req.body) return res.sendStatus(400);
-    
-    pool.query('INSERT INTO target (title, time, idUser) VALUES (?,?,?,?)', 
-    [req.body.title, req.body.time, user.id], (err, data)=>{
-        if(err) return console.log(err);
-    });
-
-    return res.send('Задача добавлена!');
-});
-
-app.post('/del-task', JSONParser, (req, res)=>{
-    if(!req.body) return res.sendStatus(400);
-
-    pool.query('DELETE FROM target WHERE id=?', [+req.body.id], (err)=> {if(err) return console.log(err)});
-
-    return res.send('Задача удалена!');
-});
-
-app.post('/up-task', JSONParser, (req, res)=>{
-    if(!req.body) return res.sendStatus(400);
-
-    pool.query('SELECT * FROM target', (err, data)=>{
+app.get('/profile', (_, res)=>{
+    pool.query('SELECT * FROM users', (err, data)=>{
         if(err) return console.log(err);
 
+        let userLogin;
+        
         for (let i = 0; i < data.length; i++) {
-            if(data[i].id == req.body.id){
-
-                if(req.body.title == '' && req.body.time == ''){
-
-                    return res.send('Поля для пустые. Задача не изменена!');
-
-                } else if(req.body.title != '' && req.body.time != ''){
-
-                    pool.query('UPDATE target SET title=? time=? WHERE id=?', [req.body.title, req.body.time, req.body.id], (err)=> {if(err) return console.log(err)});
-
-                    return res.send('Заголовок и время задачи изменены!');
-
-                }  else if(req.body.title != '' && req.body.time == ''){
-
-                    pool.query('UPDATE target SET title=? WHERE id=?', [req.body.title, req.body.id], (err)=> {if(err) return console.log(err)});
-                    
-                    return res.send('Заголовок задачи изменен!');
-
-                } else if(req.body.time != '' && req.body.title == ''){
-                    
-                    pool.query('UPDATE target SET time=? WHERE id=?', [req.body.time, req.body.id], (err)=> {if(err) return console.log(err)});
-                    
-                    return res.send('Время задачи изменено!');
-
-                };
-            };         
+            if(data[i].id == user.id){
+                userLogin = data[i].login;
+            };           
         };
+
+        pool.query('SELECT * FROM surveys', (errSurvey, dataSurvey)=>{
+            if(errSurvey) return console.log(errSurvey);
+
+            let userSurvey = {
+                '100': 0,
+                '80': 0,
+                '50': 0,
+                '30': 0,
+                '0': 0,
+            }
+            
+            for (let i = 0; i < dataSurvey.length; i++) {
+                userSurvey['100'] += dataSurvey[i]['100'];
+                userSurvey['80'] += dataSurvey[i]['80'];
+                userSurvey['50'] += dataSurvey[i]['50'];
+                userSurvey['30'] += dataSurvey[i]['30'];
+                userSurvey['0'] += dataSurvey[i]['0'];
+            }
+
+            return res.render('profile.hbs', {
+                'userLogin': userLogin,
+                '100': userSurvey['100'],
+                '80': userSurvey['80'],
+                '50': userSurvey['50'],
+                '30': userSurvey['30'],
+                '0': userSurvey['0'],
+            });
+        });
     });
 });
 
