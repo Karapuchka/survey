@@ -43,20 +43,22 @@ app.post('/singIn', urlcodedParsers, (req, res)=>{
                     'id': data[i].id,
                     'login': data[i].login,
                     'name': data[i].name,
+                    'role': (data[i].role == 'admin') ? true : false,
                 };
+
                 return res.redirect('/home');
-            }
-            else if(data[i].login == req.body.login && data[i].password != req.body.password){
+
+            } else if(data[i].login == req.body.login && data[i].password != req.body.password){
                 return res.render('index.hbs', {
                     title: 'Пароль введён неправильно!',
                 });
-            }            
-        }
+            };            
+        };
 
         return res.render('index.hbs', {
             title: 'Пользователь не найден!',
         });
-    })
+    });
 });
 
 
@@ -98,6 +100,7 @@ app.get('/home', (_, res)=>{
 
         res.render('home.hbs',{
             'list': arrSurvey,
+            'role': user.role,
         });
     });
 });
@@ -248,6 +251,24 @@ app.get('/profile', (_, res)=>{
             });
         });
     });
+});
+
+app.get('/create', (_, res)=>{
+    res.render('create.hbs')
+});
+
+app.post('/create-survey', urlcodedParsers, (req, res)=>{
+    if(!req.body) return res.statusCode(400);
+
+    pool.query('INSERT INTO surveys (title) VALUES (?)', [req.body.newSurvey], (err)=>{
+        if(err) return console.log(err);
+    });
+
+    pool.query('INSERT INTO questions (idSurvey, title, answer, curAnswer) VALUES (?,?,?,?)', [req.body.idSurvey, req.body.title, req.body.newSurvey, req.body.answer, req.body.curAnswer], (err)=>{
+        if(err) return console.log(err);
+    });
+    
+    res.render('home.hbs')
 });
 
 app.listen(3000, ()=>{

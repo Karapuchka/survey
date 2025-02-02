@@ -1,8 +1,11 @@
+
 .header-survay{
     display: flex;
     align-items: center;
     justify-content: start;
     gap: 40%;
+
+    height: 100px;
 
     padding-bottom: 40px;
 }
@@ -48,9 +51,17 @@
 
 .survey-form__item{
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: start;
     gap: 5px;
+}
+
+.survey-form__item__group{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    justify-content: start;
 }
 
 .survey-form__item__title{
@@ -72,6 +83,11 @@
     font-size: 24px;
 }
 
+.survey-form__item__input{
+    height: 40px;
+    width: 500px;
+}
+
 .survey-form__btn{
     background-color: #83DEFF;
 
@@ -91,4 +107,40 @@
     transition: all .7s ease;
 
     background-color: #43c5f5;
+}
+
+.survey-form__btn--div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.list-quetion{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.list-quetion__item{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
+    font-size: 16px;
+}
+
+.list-quetion__item__title, .list-quetion__item__text{
+    border-bottom: 1px solid black;
+    padding: 5px 7px;
+
+    width: 100px;
+}
+
+.list-quetion__item--title{
+    font-size: 18px;
+    font-weight: 800;
 }

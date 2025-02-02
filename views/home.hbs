@@ -12,7 +12,7 @@
         <header class="header"><img class="header__img" src="/img/survey.jpg"></header>
         <main class="main">
             <div class="container">
-                <div class="link"><a href="/profile" class="link__text">Профиль</a></div>
+                {{#if role}}<div class="link"><a href="/profile" class="link__text">Статистика</a> <a href="/create" class="link__text">Создать</a></div>{{/if}}
                 <ol class="list-survey">
                     {{#each list}}
                         <li class="list-survey__item">

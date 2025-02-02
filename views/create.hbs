@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/survey.css">
+    <title>Создание опроса</title>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <header class="header header-survay">
+                <div class="link-back"><a href="/home" class="link-back-text">Назад</a></div>
+                <h1 class="survey-title">Создание опроса</h1>
+            </header>
+            <main class="main">
+                <form class="survey-form" action="/create-survey" method="post">
+                    <div class="survey-form__item">
+                        <div class="survey-form__item__group">
+                            <input class="survey-form__item__input survey-form__item__input-t" type="text" id="newSurvey" name="newSurvey" placeholder="Укажите название опроса">
+                            <input class="survey-form__item__input survey-form__item__input-t" type="text" id="newQuestion" placeholder="Укажите название вопроса">
+                            <input class="survey-form__item__input survey-form__item__input-t" type="text" id="newAnswerQuestion" placeholder="Укажите ответ на вопрос">
+                        </div>
+                        <div class="survey-form__item__group">
+                            <div class="survey-form__btn survey-form__btn--div" id="btnCreateQuestion">Добавить вопрос</div>
+                            <button class="survey-form__btn" type="submit" id="js-btn-submit">Создать опрос</button>
+                        </div>
+                    </div>
+
+                    <ol class="list-quetion" id="listQuetion">
+                        <li class="list-quetion__item list-quetion__item--title">
+                            <p class="list-quetion__item__title">Вопрос</p>
+                            <p class="list-quetion__item__text">Ответ</p>
+                        </li>
+                    </ol>
+
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <template id="tem-list-quetion">
+        <li class="list-quetion__item">
+            <input type="text" class="list-quetion__item__title"></input>
+            <input type="text" class="list-quetion__item__text"></input>
+        </li>
+    </template>
+
+    <script src="/js/create.js"></script>
+</body>
+</html>
